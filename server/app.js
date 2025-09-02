@@ -1,29 +1,26 @@
+const dotenv = require("dotenv")
 const express = require("express");
-const fetch = require("node-fetch"); 
 const app = express();
-const cors = require("cors");
+const cors = require("cors")
+const axios = require("axios")
+dotenv.config()
 
-
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.post("/send-sms", async (req, res) => {
     const { phone, message } = req.body;
-    console.log(phone, message, "<--- data came");
+    if (!phone || !message) {
+        return res.status(400).json({ message: "Missing field!" });
+    }
     try {
-        const response = await fetch("https://textbelt.com/text", {
-            method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                phone,
-                message,
-                key: "textbelt",
-            }),
+        const response = await axios.post("https://textbelt.com/text", {
+            phone,
+            message,
+            key: process.env.TEXT_BELT_SMS_KEY,
         });
-        const data = await response.json();
-        console.log(data, "<--- textbelt response");
-        res.json(data);
+        res.status(200).json({ success: true, data: response.data });
     } catch (err) {
         console.error("Error:", err);
         res.status(500).json({ success: false, error: err.message });
@@ -32,4 +29,4 @@ app.post("/send-sms", async (req, res) => {
 
 app.listen(8080, () =>
     console.log("✅ Server running on http://localhost:8080")
-);
+); 
