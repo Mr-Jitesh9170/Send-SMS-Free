@@ -1,9 +1,8 @@
-const dotenv = require("dotenv")
 const express = require("express");
 const app = express();
 const cors = require("cors")
 const axios = require("axios")
-dotenv.config()
+require("dotenv").config()
 
 app.use(cors())
 app.use(express.json())
@@ -18,7 +17,7 @@ app.post("/send-sms", async (req, res) => {
         const response = await axios.post("https://textbelt.com/text", {
             phone,
             message,
-            key: process.env.TEXT_BELT_SMS_KEY,
+            key: "textbelt",
         });
         res.status(200).json({ success: true, data: response.data });
     } catch (err) {
@@ -26,7 +25,7 @@ app.post("/send-sms", async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-
-app.listen(8080, () =>
-    console.log("✅ Server running on http://localhost:8080")
+const port = process.env.PORT || 3000
+app.listen(port, () =>
+    console.log(`Server running on http://localhost:${port}`)
 ); 
